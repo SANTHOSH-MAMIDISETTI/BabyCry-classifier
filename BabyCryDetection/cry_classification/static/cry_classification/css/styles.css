@@ -1,0 +1,25 @@
+/* cry_classification/static/cry_classification/css/styles.css */
+.prediction-card {
+    transition: transform 0.2s;
+}
+
+.prediction-card:hover {
+    transform: scale(1.02);
+}
+
+.upload-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.confidence-high {
+    color: #28a745;
+}
+
+.confidence-medium {
+    color: #ffc107;
+}
+
+.confidence-low {
+    color: #dc3545;
+}
