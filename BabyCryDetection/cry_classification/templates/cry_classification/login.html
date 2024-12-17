@@ -1,46 +1,21 @@
 {% extends 'cry_classification/base.html' %}
-
 {% block title %}Login{% endblock %}
-
 {% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card shadow-lg border-0">
-                <div class="card-header bg-primary text-white text-center">
-                    <h4>Login to Your Account</h4>
-                </div>
-                <div class="card-body">
-                    <form method="post">
-                        {% csrf_token %}
-                        <!-- Username Field -->
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Username</label>
-                            <input type="text" id="username" name="username" class="form-control" placeholder="Enter your username" required>
-                        </div>
-                        
-                        <!-- Password Field -->
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" id="password" name="password" class="form-control" placeholder="Enter your password" required>
-                        </div>
-                        
-                        <!-- Login Button -->
-                        <button type="submit" class="btn btn-primary w-100">Login</button>
-                    </form>
-
-                    {% if error %}
-                    <!-- Error Message -->
-                    <div class="alert alert-danger mt-3" role="alert">
-                        {{ error }}
-                    </div>
-                    {% endif %}
-                </div>
-                <div class="card-footer text-center">
-                    <p class="mb-0">Don't have an account? <a href="{% url 'register' %}">Register here</a>.</p>
-                </div>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center">Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label>Username</label>
+                <input type="text" name="username" class="form-control" required>
             </div>
-        </div>
+            <div class="mb-3">
+                <label>Password</label>
+                <input type="password" name="password" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Login</button>
+        </form>
     </div>
 </div>
 {% endblock %}

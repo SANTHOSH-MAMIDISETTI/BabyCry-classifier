@@ -1,10 +1,17 @@
 {% extends 'cry_classification/base.html' %}
-
 {% block title %}Upload Audio{% endblock %}
-
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center">Upload Audio for Classification</h2>
-    <p class="text-center text-muted">This is a placeholder for the upload audio feature.</p>
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <h2 class="text-center">Upload Audio</h2>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="audio" class="form-label">Select Audio File</label>
+                <input type="file" name="audio" id="audio" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Upload</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

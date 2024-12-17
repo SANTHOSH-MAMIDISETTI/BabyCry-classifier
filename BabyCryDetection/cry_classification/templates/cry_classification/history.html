@@ -1,21 +1,16 @@
-
-
-<!-- history.html -->
 {% extends 'cry_classification/base.html' %}
-
-{% block title %}History{% endblock %}
-
+{% block title %}Prediction History{% endblock %}
 {% block content %}
 <div class="container mt-4">
-    <h2>Prediction History</h2>
-    
+    <h2 class="text-center">Prediction History</h2>
+
     {% if predictions %}
-        <div class="table-responsive">
-            <table class="table table-striped">
+        <div class="table-responsive mt-4">
+            <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>Date</th>
-                        <th>Audio Title</th>
+                        <th>File Name</th>
                         <th>Prediction</th>
                         <th>Confidence</th>
                     </tr>
@@ -23,17 +18,17 @@
                 <tbody>
                     {% for prediction in predictions %}
                     <tr>
-                        <td>{{ prediction.created_at|date:"M d, Y H:i" }}</td>
-                        <td>{{ prediction.audio_file.title }}</td>
-                        <td>{{ prediction.prediction }}</td>
-                        <td>{{ prediction.confidence|floatformat:2 }}%</td>
+                        <td>{{ prediction.date|date:"d M Y H:i" }}</td>
+                        <td>{{ prediction.file_name }}</td>
+                        <td>{{ prediction.result }}</td>
+                        <td>{{ prediction.confidence }}%</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
     {% else %}
-        <div class="alert alert-info">No predictions found.</div>
+        <div class="alert alert-info mt-4">No prediction history available.</div>
     {% endif %}
 </div>
 {% endblock %}

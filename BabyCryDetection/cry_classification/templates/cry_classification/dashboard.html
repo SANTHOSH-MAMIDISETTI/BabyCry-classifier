@@ -1,59 +1,39 @@
 {% extends 'cry_classification/base.html' %}
-
 {% block title %}Dashboard{% endblock %}
-
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center">Welcome to the Dashboard, {{ user.username }}!</h2>
-    
-    <!-- System Overview Section -->
+
+    <!-- Quick Actions Section -->
     <div class="row mt-4">
+        <div class="col-md-4">
+            <a href="{% url 'upload_audio' %}" class="btn btn-primary w-100">Upload Audio for Analysis</a>
+        </div>
+        <div class="col-md-4">
+            <a href="{% url 'history' %}" class="btn btn-secondary w-100">View Prediction History</a>
+        </div>
+        <div class="col-md-4">
+            <a href="#" class="btn btn-info w-100">Help & Support</a>
+        </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="row mt-5">
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    System Status
-                </div>
+            <div class="card text-white bg-success mb-3">
+                <div class="card-header">Total Uploads</div>
                 <div class="card-body">
-                    <p class="card-text">Recent Activity: No new alerts</p>
-                    <p class="card-text">Predictions Made: 25</p>
+                    <h5 class="card-title">15</h5>
+                    <p class="card-text">Files uploaded for analysis.</p>
                 </div>
             </div>
         </div>
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    User Stats
-                </div>
+            <div class="card text-white bg-warning mb-3">
+                <div class="card-header">Predictions</div>
                 <div class="card-body">
-                    <p class="card-text">Logged in as: <strong>{{ user.username }}</strong></p>
-                    <p class="card-text">Date Joined: {{ user.date_joined|date:"d M Y" }}</p>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Navigation or Actions Section -->
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <a href="{% url 'upload_audio' %}" class="btn btn-primary w-100">Upload Audio for Classification</a>
-        </div>
-        <div class="col-md-4">
-            <a href="#" class="btn btn-secondary w-100">View Reports</a>
-        </div>
-        <div class="col-md-4">
-            <a href="#" class="btn btn-danger w-100">Logout</a>
-        </div>
-    </div>
-    
-    <!-- Placeholder for Graph or Data Visualization -->
-    <div class="row mt-4">
-        <div class="col">
-            <div class="card">
-                <div class="card-header bg-info text-white">
-                    Prediction Trends
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">Graphs and trends will be displayed here.</p>
+                    <h5 class="card-title">10 Crying Detected</h5>
+                    <p class="card-text">Predictions made so far.</p>
                 </div>
             </div>
         </div>
