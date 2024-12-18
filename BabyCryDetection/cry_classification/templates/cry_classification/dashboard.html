@@ -1,42 +1,133 @@
 {% extends 'cry_classification/base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <h2 class="text-center">Welcome to the Dashboard, {{ user.username }}!</h2>
-
-    <!-- Quick Actions Section -->
-    <div class="row mt-4">
-        <div class="col-md-4">
-            <a href="{% url 'upload_audio' %}" class="btn btn-primary w-100">Upload Audio for Analysis</a>
-        </div>
-        <div class="col-md-4">
-            <a href="{% url 'history' %}" class="btn btn-secondary w-100">View Prediction History</a>
-        </div>
-        <div class="col-md-4">
-            <a href="#" class="btn btn-info w-100">Help & Support</a>
-        </div>
+<div class="container mt-5">
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-dark display-4">Welcome to the Dashboard, <span class="text-primary">{{ user.username }}</span>!</h1>
+        <p class="lead text-muted">Monitor your uploads, predictions, and trends at a glance.</p>
     </div>
 
-    <!-- Summary Section -->
-    <div class="row mt-5">
-        <div class="col-md-6">
-            <div class="card text-white bg-success mb-3">
-                <div class="card-header">Total Uploads</div>
-                <div class="card-body">
-                    <h5 class="card-title">15</h5>
-                    <p class="card-text">Files uploaded for analysis.</p>
+    <!-- Summary Cards -->
+    <div class="row mb-5">
+        <div class="col-lg-6 mb-4">
+            <div class="card text-white bg-success shadow rounded-3">
+                <div class="card-body text-center">
+                    <h4 class="fw-bold">Total Uploads</h4>
+                    <h2 class="display-3">{{ total_uploads }}</h2>
+                    <p class="mb-0">Files uploaded for analysis</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
-            <div class="card text-white bg-warning mb-3">
-                <div class="card-header">Predictions</div>
+        <div class="col-lg-6 mb-4">
+            <div class="card text-white bg-warning shadow rounded-3">
+                <div class="card-body text-center">
+                    <h4 class="fw-bold">Total Cry Predictions</h4>
+                    <h2 class="display-3">{{ total_predictions }}</h2>
+                    <p class="mb-0">Crying detected so far</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    <div class="row">
+        <!-- Upload Trends Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow rounded-3">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Upload Trends Over Time</h5>
+                </div>
                 <div class="card-body">
-                    <h5 class="card-title">10 Crying Detected</h5>
-                    <p class="card-text">Predictions made so far.</p>
+                    <canvas id="uploadTrendsChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Predictions Pie Chart -->
+        <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow rounded-3">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Cry Predictions Distribution</h5>
+                </div>
+                <div class="card-body">
+                    <canvas id="predictionsChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Include Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<!-- Safely embed context variables as JSON -->
+{{ uploads_labels|json_script:"uploadsLabels" }}
+{{ uploads_data|json_script:"uploadsData" }}
+{{ predictions_labels|json_script:"predictionsLabels" }}
+{{ predictions_data|json_script:"predictionsData" }}
+
+<script>
+    // Retrieve embedded JSON data
+    const uploadsLabels = JSON.parse(document.getElementById('uploadsLabels').textContent);
+    const uploadsData = JSON.parse(document.getElementById('uploadsData').textContent);
+    const predictionsLabels = JSON.parse(document.getElementById('predictionsLabels').textContent);
+    const predictionsData = JSON.parse(document.getElementById('predictionsData').textContent);
+
+    // Upload Trends Chart
+    const ctxUploads = document.getElementById('uploadTrendsChart').getContext('2d');
+    new Chart(ctxUploads, {
+        type: 'line',
+        data: {
+            labels: uploadsLabels,
+            datasets: [{
+                label: 'Uploads',
+                data: uploadsData,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Uploads Over Time',
+                    font: { size: 16 }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: { grid: { display: false } },
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // Predictions Pie Chart
+    const ctxPredictions = document.getElementById('predictionsChart').getContext('2d');
+    new Chart(ctxPredictions, {
+        type: 'pie',
+        data: {
+            labels: predictionsLabels,
+            datasets: [{
+                data: predictionsData,
+                backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#17a2b8'],
+                hoverOffset: 8
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Distribution of Predictions',
+                    font: { size: 16 }
+                },
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+</script>
 {% endblock %}

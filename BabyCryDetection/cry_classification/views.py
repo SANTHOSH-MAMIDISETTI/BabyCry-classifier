@@ -1,4 +1,3 @@
-#  cry_classification/views.pyimport os
 import os
 import librosa
 import mimetypes
@@ -13,6 +12,10 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.db.models import Count
+from django.db.models.functions import TruncDay
+from django.utils.timezone import now
+from .models import PredictionHistory
 
 # Home view
 def home_view(request):
@@ -98,7 +101,38 @@ def register_view(request):
 # Dashboard view
 @login_required
 def dashboard_view(request):
-    return render(request, 'cry_classification/dashboard.html')
+    # Group uploads by day
+    uploads_by_day = (
+        PredictionHistory.objects
+        .annotate(day=TruncDay('timestamp'))
+        .values('day')
+        .annotate(total=Count('id'))
+        .order_by('day')
+    )
+
+    # Count cry predictions
+    prediction_counts = (
+        PredictionHistory.objects
+        .values('prediction')
+        .annotate(count=Count('id'))
+    )
+
+    # Prepare data for Chart.js
+    uploads_labels = [entry['day'].strftime('%Y-%m-%d') for entry in uploads_by_day]
+    uploads_data = [entry['total'] for entry in uploads_by_day]
+
+    predictions_labels = [entry['prediction'] for entry in prediction_counts]
+    predictions_data = [entry['count'] for entry in prediction_counts]
+
+    context = {
+        'total_uploads': PredictionHistory.objects.count(),
+        'total_predictions': PredictionHistory.objects.filter(prediction="Crying Detected").count(),
+        'uploads_labels': uploads_labels,
+        'uploads_data': uploads_data,
+        'predictions_labels': predictions_labels,
+        'predictions_data': predictions_data,
+    }
+    return render(request, 'cry_classification/dashboard.html', context)
 
 # Upload audio view
 @login_required
@@ -137,6 +171,15 @@ def upload_audio_view(request):
             prediction_result = f"Prediction: {prediction} (Confidence: {confidence*100:.2f}%)"
             messages.success(request, f"File uploaded successfully! {prediction_result}")
 
+            # Save prediction details to the database
+            PredictionHistory.objects.create(
+                user=request.user,
+                file_name=audio_file.name,
+                file_path=file_path,
+                prediction=prediction,
+                confidence=confidence * 100
+            )
+
         except Exception as e:
             messages.error(request, f"Error processing file: {e}")
             return redirect('upload_audio')
@@ -166,14 +209,13 @@ def logout_view(request):
 
     return render(request, 'cry_classification/logout_confirmation.html')
 
+# History view
 @login_required
 def history_view(request):
-    predictions = [
-        {"date": "2024-12-18 10:30", "file_name": "cry1.wav", "result": "Crying Detected", "confidence": 85.5},
-        {"date": "2024-12-18 11:00", "file_name": "cry2.wav", "result": "No Crying Detected", "confidence": 76.3},
-    ]
+    predictions = PredictionHistory.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'cry_classification/history.html', {'predictions': predictions})
 
+# Help view
 @login_required
 def help_view(request):
     return render(request, 'cry_classification/help.html')
