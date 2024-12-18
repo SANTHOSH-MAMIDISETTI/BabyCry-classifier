@@ -1,8 +1,11 @@
+#  cry_classification/views.pyimport os
 import os
 import librosa
 import mimetypes
 import numpy as np
+import soundfile as sf
 from django.conf import settings
+from .ml_model import predict_cry
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
@@ -10,10 +13,6 @@ from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-
-# Mock Model Prediction (Placeholder)
-def mock_model_predict(features):
-    return 1 if np.mean(features) > 0.5 else 0
 
 # Home view
 def home_view(request):
@@ -131,15 +130,12 @@ def upload_audio_view(request):
             file_path = default_storage.save(f'audio_files/{audio_file.name}', ContentFile(audio_file.read()))
             full_file_path = os.path.join(settings.MEDIA_ROOT, file_path)
 
-            # Validate and process the saved file
-            y, sr = librosa.load(full_file_path, sr=None)
-
             # Extract features and predict
             features = extract_features(full_file_path)
-            prediction = mock_model_predict(features)
+            prediction, confidence = predict_cry(full_file_path)
 
-            prediction_result = "Crying Detected" if prediction == 1 else "No Crying Detected"
-            messages.success(request, f"File uploaded successfully! Prediction: {prediction_result}")
+            prediction_result = f"Prediction: {prediction} (Confidence: {confidence*100:.2f}%)"
+            messages.success(request, f"File uploaded successfully! {prediction_result}")
 
         except Exception as e:
             messages.error(request, f"Error processing file: {e}")
@@ -152,7 +148,9 @@ def upload_audio_view(request):
 # Feature extraction function
 def extract_features(file_path):
     try:
-        y, sr = librosa.load(file_path, sr=None)
+        y, sr = sf.read(file_path)
+        if y.ndim > 1:  # Convert stereo to mono
+            y = np.mean(y, axis=1)
         mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
         return np.mean(mfcc.T, axis=0)
     except Exception as e:
@@ -167,7 +165,6 @@ def logout_view(request):
         return redirect('login')
 
     return render(request, 'cry_classification/logout_confirmation.html')
-
 
 @login_required
 def history_view(request):

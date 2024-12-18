@@ -12,6 +12,7 @@ urlpatterns = [
     path('history/', views.history_view, name='history'),
     path('upload/', views.upload_audio_view, name='upload_audio'),
     path('logout/', views.logout_view, name='logout'),
+    path('help/', views.help_view, name='help'),
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
