@@ -3,36 +3,244 @@
 {% block title %}Prediction History{% endblock %}
 
 {% block content %}
-<div class="card shadow mt-4">
-    <div class="card-header bg-primary text-white text-center">
-        <h2>Prediction History</h2>
+<style>
+    .history-container {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .history-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        overflow: hidden;
+    }
+
+    .custom-table {
+        margin: 0;
+    }
+
+    .custom-table thead {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        color: white;
+    }
+
+    .custom-table th {
+        padding: 1rem;
+        font-weight: 600;
+        border: none;
+    }
+
+    .custom-table td {
+        padding: 1rem;
+        vertical-align: middle;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .prediction-row {
+        transition: background-color 0.2s;
+    }
+
+    .prediction-row:hover {
+        background-color: #f8fafc;
+    }
+
+    .file-name {
+        display: inline-block;
+        max-width: 200px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        color: #4a5568;
+    }
+
+    .prediction-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .prediction-badge[data-prediction="Crying"] {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .prediction-badge[data-prediction="Not Crying"] {
+        background-color: #dcfce7;
+        color: #166534;
+    }
+
+    .confidence-wrapper {
+        position: relative;
+        background: #e2e8f0;
+        height: 24px;
+        border-radius: 12px;
+        overflow: hidden;
+        width: 150px;
+    }
+
+    .confidence-bar {
+        position: absolute;
+        left: 0;
+        top: 0;
+        height: 100%;
+        background: linear-gradient(90deg, #4a90e2, #357abd);
+        transition: width 0.3s ease;
+    }
+
+    .confidence-text {
+        position: absolute;
+        width: 100%;
+        text-align: center;
+        color: #1a202c;
+        font-size: 0.875rem;
+        font-weight: 500;
+        line-height: 24px;
+        z-index: 1;
+    }
+
+    .btn-download {
+        background-color: #4a90e2;
+        color: white;
+        width: 36px;
+        height: 36px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .btn-download:hover {
+        background-color: #357abd;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: #e2e8f0;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .empty-icon i {
+        font-size: 32px;
+        color: #4a5568;
+    }
+
+    .empty-state h3 {
+        font-weight: 600;
+        color: #2d3748;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #718096;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .history-container {
+            padding: 1rem;
+        }
+
+        .file-name {
+            max-width: 150px;
+        }
+
+        .confidence-wrapper {
+            width: 100px;
+        }
+    }
+</style>
+
+<div class="history-container">
+    <div class="header-section text-center mb-4">
+        <h2 class="display-6 fw-bold mb-2">Prediction History</h2>
+        <p class="text-muted">Track all your previous cry detection analyses</p>
     </div>
-    <div class="card-body">
+
+    <div class="history-card">
         {% if predictions %}
-            <table class="table table-striped table-bordered table-hover mt-3">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Timestamp</th>
-                        <th>File Name</th>
-                        <th>Prediction</th>
-                        <th>Confidence (%)</th>
-                        <th>Audio File</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for prediction in predictions %}
+            <div class="table-responsive">
+                <table class="table custom-table">
+                    <thead>
                         <tr>
-                            <td>{{ prediction.timestamp|date:"Y-m-d H:i:s" }}</td>
-                            <td>{{ prediction.file_name }}</td>
-                            <td>{{ prediction.prediction }}</td>
-                            <td>{{ prediction.confidence|floatformat:2 }}</td>
-                            <td><a href="{{ MEDIA_URL }}{{ prediction.file_path }}" class="btn btn-success btn-sm" download>Download</a></td>
+                            <th>
+                                <i class="fas fa-clock me-2"></i>Timestamp
+                            </th>
+                            <th>
+                                <i class="fas fa-file-audio me-2"></i>File Name
+                            </th>
+                            <th>
+                                <i class="fas fa-baby me-2"></i>Prediction
+                            </th>
+                            <th>
+                                <i class="fas fa-percentage me-2"></i>Confidence
+                            </th>
+                            <th>
+                                <i class="fas fa-download me-2"></i>Audio
+                            </th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for prediction in predictions %}
+                            <tr class="prediction-row">
+                                <td>
+                                    <div class="d-flex flex-column">
+                                        <span class="fw-medium">{{ prediction.timestamp|date:"M d, Y" }}</span>
+                                        <small class="text-muted">{{ prediction.timestamp|date:"H:i:s" }}</small>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="file-name" title="{{ prediction.file_name }}">
+                                        {{ prediction.file_name }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <span class="prediction-badge" data-prediction="{{ prediction.prediction }}">
+                                        {{ prediction.prediction }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="confidence-wrapper">
+                                        <div class="confidence-bar" style="width: {{ prediction.confidence }}%;"></div>
+                                        <span class="confidence-text">{{ prediction.confidence|floatformat:2 }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <!-- <a href="{{ MEDIA_URL }}audio_files/{{ prediction.file_name }}" class="btn btn-download" download> -->
+                                    <a href="{{ MEDIA_URL }}audio_files/{{ prediction.file_name }}" class="btn btn-download" download> <i class="fas fa-download"></i> </a>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% else %}
-            <p class="text-center text-muted">No predictions found.</p>
+            <div class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-history"></i>
+                </div>
+                <h3>No Predictions Yet</h3>
+                <p>Upload an audio file to start analyzing baby cries</p>
+                <a href="{% url 'upload_audio' %}" class="btn btn-primary">
+                    <i class="fas fa-upload me-2"></i>Upload Audio
+                </a>
+            </div>
         {% endif %}
     </div>
 </div>

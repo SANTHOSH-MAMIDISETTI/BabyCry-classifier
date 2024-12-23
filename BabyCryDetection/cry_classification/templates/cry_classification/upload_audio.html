@@ -3,15 +3,232 @@
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-md-6">
-        <h2 class="text-center">Upload Audio</h2>
-        <form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="audio" class="form-label">Select Audio File</label>
-                <input type="file" name="audio" id="audio" class="form-control" required>
+        <div class="upload-card">
+            <div class="text-center mb-4">
+                <div class="upload-icon">
+                    <i class="fas fa-music"></i>
+                </div>
+                <h2 class="fw-bold mb-2">Upload Audio</h2>
+                <p class="text-muted">Upload your audio file for cry detection analysis</p>
             </div>
-            <button type="submit" class="btn btn-primary w-100">Upload</button>
-        </form>
+
+            <form method="post" enctype="multipart/form-data" id="uploadForm">
+                {% csrf_token %}
+                <div class="upload-zone mb-4">
+                    <input type="file" name="audio" id="audio" class="file-input" accept="audio/*" required>
+                    <label for="audio" class="upload-label">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt mb-3"></i>
+                            <div class="upload-text">
+                                <span class="primary-text">Drop your audio file here</span>
+                                <span class="secondary-text">or click to browse</span>
+                            </div>
+                            <div class="selected-file mt-2"></div>
+                        </div>
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary btn-lg w-100" id="uploadButton">
+                    <i class="fas fa-upload me-2"></i>Upload Audio
+                </button>
+            </form>
+
+            <div class="upload-info mt-4">
+                <div class="info-item">
+                    <i class="fas fa-info-circle text-primary"></i>
+                    <span>Supported formats: WAV, MP3, M4A</span>
+                </div>
+                <div class="info-item">
+                    <i class="fas fa-clock text-primary"></i>
+                    <span>Maximum size: 10 MB</span>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<style>
+    .upload-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        margin-top: 2rem;
+    }
+
+    .upload-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .upload-icon i {
+        font-size: 32px;
+        color: white;
+    }
+
+    .upload-zone {
+        position: relative;
+        border: 2px dashed #e2e8f0;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+    }
+
+    .upload-zone:hover {
+        border-color: #4a90e2;
+        background-color: rgba(74, 144, 226, 0.05);
+    }
+
+    .file-input {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .upload-label {
+        padding: 2rem;
+        text-align: center;
+        cursor: pointer;
+        display: block;
+        margin: 0;
+    }
+
+    .upload-content i {
+        font-size: 48px;
+        color: #4a90e2;
+    }
+
+    .upload-text {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .primary-text {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #2d3748;
+    }
+
+    .secondary-text {
+        color: #718096;
+    }
+
+    .selected-file {
+        color: #4a90e2;
+        font-weight: 500;
+        display: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #4a90e2, #357abd);
+        border: none;
+        padding: 1rem;
+        transition: transform 0.2s;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+    }
+
+    .upload-info {
+        border-top: 1px solid #e2e8f0;
+        padding-top: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        color: #718096;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .info-item i {
+        font-size: 1.1rem;
+    }
+
+    /* Drag and drop states */
+    .upload-zone.dragover {
+        border-color: #4a90e2;
+        background-color: rgba(74, 144, 226, 0.1);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadZone = document.querySelector('.upload-zone');
+        const fileInput = document.querySelector('.file-input');
+        const selectedFile = document.querySelector('.selected-file');
+        const uploadButton = document.getElementById('uploadButton');
+        
+        // Handle file selection
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                selectedFile.style.display = 'block';
+                selectedFile.textContent = `Selected: ${file.name}`;
+            }
+        });
+
+        // Drag and drop handlers
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            uploadZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            uploadZone.classList.add('dragover');
+        }
+
+        function unhighlight(e) {
+            uploadZone.classList.remove('dragover');
+        }
+
+        uploadZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            
+            fileInput.files = dt.files;
+            if (file) {
+                selectedFile.style.display = 'block';
+                selectedFile.textContent = `Selected: ${file.name}`;
+            }
+        }
+
+        // Form submission loading state
+        const form = document.getElementById('uploadForm');
+        form.addEventListener('submit', function() {
+            uploadButton.disabled = true;
+            uploadButton.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Uploading...';
+        });
+    });
+</script>
 {% endblock %}

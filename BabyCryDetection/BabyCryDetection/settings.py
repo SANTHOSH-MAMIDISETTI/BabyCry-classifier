@@ -129,4 +129,4 @@ LOGIN_URL = '/login/'  # Redirect unauthenticated users to /login/
 LOGIN_REDIRECT_URL = '/dashboard/'  # Redirect after successful login
 LOGOUT_REDIRECT_URL = '/'  # Redirect after logout
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

@@ -1,61 +1,186 @@
 {% extends 'cry_classification/base.html' %}
 {% block title %}Dashboard{% endblock %}
 {% block content %}
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-dark display-4">Welcome to the Dashboard, <span class="text-primary">{{ user.username }}</span>!</h1>
-        <p class="lead text-muted">Monitor your uploads, predictions, and trends at a glance.</p>
+<div class="dashboard-container">
+    <div class="welcome-section text-center mb-5">
+        <h1 class="fw-bold display-4 mb-3">
+            Welcome back, <span class="gradient-text">{{ user.username }}</span>!
+        </h1>
+        <p class="lead text-muted">Track your baby's crying patterns and analysis results</p>
     </div>
 
     <!-- Summary Cards -->
-    <div class="row mb-5">
-        <div class="col-lg-6 mb-4">
-            <div class="card text-white bg-success shadow rounded-3">
-                <div class="card-body text-center">
-                    <h4 class="fw-bold">Total Uploads</h4>
-                    <h2 class="display-3">{{ total_uploads }}</h2>
-                    <p class="mb-0">Files uploaded for analysis</p>
+    <div class="row g-4 mb-5">
+        <div class="col-lg-6">
+            <div class="stat-card uploads-card">
+                <div class="stat-icon">
+                    <i class="fas fa-upload"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>Total Uploads</h4>
+                    <div class="stat-value">{{ total_uploads }}</div>
+                    <p class="stat-description">Audio files analyzed</p>
                 </div>
             </div>
         </div>
-        <div class="col-lg-6 mb-4">
-            <div class="card text-white bg-warning shadow rounded-3">
-                <div class="card-body text-center">
-                    <h4 class="fw-bold">Total Cry Predictions</h4>
-                    <h2 class="display-3">{{ total_predictions }}</h2>
-                    <p class="mb-0">Crying detected so far</p>
+        <div class="col-lg-6">
+            <div class="stat-card predictions-card">
+                <div class="stat-icon">
+                    <i class="fas fa-baby"></i>
+                </div>
+                <div class="stat-content">
+                    <h4>Cry Predictions</h4>
+                    <div class="stat-value">{{ total_predictions }}</div>
+                    <p class="stat-description">Crying instances detected</p>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Charts Section -->
-    <div class="row">
-        <!-- Upload Trends Chart -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow rounded-3">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Upload Trends Over Time</h5>
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5><i class="fas fa-chart-line me-2"></i>Upload Trends</h5>
+                        <p class="text-muted mb-0">Track your upload frequency over time</p>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="uploadTrendsChart"></canvas>
                 </div>
             </div>
         </div>
-
-        <!-- Predictions Pie Chart -->
-        <div class="col-lg-6 mb-4">
-            <div class="card border-0 shadow rounded-3">
-                <div class="card-header bg-info text-white">
-                    <h5 class="mb-0">Cry Predictions Distribution</h5>
+        <div class="col-lg-6">
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div>
+                        <h5><i class="fas fa-chart-pie me-2"></i>Cry Analysis</h5>
+                        <p class="text-muted mb-0">Distribution of crying patterns</p>
+                    </div>
                 </div>
-                <div class="card-body">
+                <div class="chart-body">
                     <canvas id="predictionsChart"></canvas>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .dashboard-container {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .gradient-text {
+        background: linear-gradient(45deg, #4a90e2, #357abd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .uploads-card {
+        background: linear-gradient(135deg, #a8e063 0%, #56ab2f 100%);
+        color: white;
+    }
+
+    .predictions-card {
+        background: linear-gradient(135deg, #ffd86f 0%, #fc6262 100%);
+        color: white;
+    }
+
+    .stat-icon {
+        background: rgba(255, 255, 255, 0.2);
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .stat-icon i {
+        font-size: 24px;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-content h4 {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        margin-bottom: 0.5rem;
+    }
+
+    .stat-description {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+        height: 100%;
+    }
+
+    .chart-header {
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .chart-header h5 {
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+        color: #2d3748;
+    }
+
+    .chart-body {
+        padding: 1.5rem;
+        height: 300px;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        
+        .stat-card {
+            padding: 1rem;
+        }
+        
+        .chart-body {
+            height: 250px;
+        }
+    }
+</style>
 
 <!-- Include Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -73,6 +198,10 @@
     const predictionsLabels = JSON.parse(document.getElementById('predictionsLabels').textContent);
     const predictionsData = JSON.parse(document.getElementById('predictionsData').textContent);
 
+    // Chart.js defaults
+    Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+    Chart.defaults.color = '#64748b';
+
     // Upload Trends Chart
     const ctxUploads = document.getElementById('uploadTrendsChart').getContext('2d');
     new Chart(ctxUploads, {
@@ -82,25 +211,46 @@
             datasets: [{
                 label: 'Uploads',
                 data: uploadsData,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 3,
-                fill: true
+                fill: true,
+                backgroundColor: 'rgba(74, 144, 226, 0.1)',
+                borderColor: '#4a90e2',
+                borderWidth: 2,
+                tension: 0.4,
+                pointRadius: 4,
+                pointHoverRadius: 6,
+                pointBackgroundColor: '#fff',
+                pointHoverBackgroundColor: '#4a90e2',
+                pointBorderColor: '#4a90e2',
+                pointBorderWidth: 2
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                title: {
-                    display: true,
-                    text: 'Uploads Over Time',
-                    font: { size: 16 }
-                },
-                legend: { display: false }
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#1a202c',
+                    bodyColor: '#4a5568',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: (context) => ` ${context.parsed.y} uploads`
+                    }
+                }
             },
             scales: {
-                x: { grid: { display: false } },
-                y: { beginAtZero: true }
+                x: {
+                    grid: { display: false },
+                    ticks: { maxRotation: 45, minRotation: 45 }
+                },
+                y: {
+                    beginAtZero: true,
+                    grid: { borderDash: [8, 4] }
+                }
             }
         }
     });
@@ -108,25 +258,47 @@
     // Predictions Pie Chart
     const ctxPredictions = document.getElementById('predictionsChart').getContext('2d');
     new Chart(ctxPredictions, {
-        type: 'pie',
+        type: 'doughnut',
         data: {
             labels: predictionsLabels,
             datasets: [{
                 data: predictionsData,
-                backgroundColor: ['#28a745', '#ffc107', '#dc3545', '#17a2b8'],
-                hoverOffset: 8
+                backgroundColor: [
+                    'rgba(72, 187, 120, 0.9)',  // green
+                    'rgba(246, 173, 85, 0.9)',  // orange
+                    'rgba(239, 68, 68, 0.9)',   // red
+                    'rgba(66, 153, 225, 0.9)'   // blue
+                ],
+                borderWidth: 0,
+                hoverOffset: 15
             }]
         },
         options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                title: {
-                    display: true,
-                    text: 'Distribution of Predictions',
-                    font: { size: 16 }
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        padding: 20,
+                        usePointStyle: true,
+                        pointStyle: 'circle'
+                    }
                 },
-                legend: { position: 'bottom' }
-            }
+                tooltip: {
+                    backgroundColor: '#fff',
+                    titleColor: '#1a202c',
+                    bodyColor: '#4a5568',
+                    borderColor: '#e2e8f0',
+                    borderWidth: 1,
+                    padding: 12,
+                    callbacks: {
+                        label: (context) => 
+                            ` ${context.label}: ${context.parsed}%`
+                    }
+                }
+            },
+            cutout: '65%'
         }
     });
 </script>
