@@ -119,6 +119,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = 'D:/fsd/BabyCry-classifier/BabyCryDetection/static'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
@@ -130,3 +131,4 @@ LOGIN_REDIRECT_URL = '/dashboard/'  # Redirect after successful login
 LOGOUT_REDIRECT_URL = '/'  # Redirect after logout
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+print(MEDIA_ROOT)

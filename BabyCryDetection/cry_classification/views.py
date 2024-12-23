@@ -104,6 +104,7 @@ def dashboard_view(request):
     # Group uploads by day
     uploads_by_day = (
         PredictionHistory.objects
+        .filter(user=request.user)
         .annotate(day=TruncDay('timestamp'))
         .values('day')
         .annotate(total=Count('id'))
@@ -113,6 +114,7 @@ def dashboard_view(request):
     # Count cry predictions
     prediction_counts = (
         PredictionHistory.objects
+        .filter(user=request.user)
         .values('prediction')
         .annotate(count=Count('id'))
     )
@@ -125,8 +127,8 @@ def dashboard_view(request):
     predictions_data = [entry['count'] for entry in prediction_counts]
 
     context = {
-        'total_uploads': PredictionHistory.objects.count(),
-        'total_predictions': PredictionHistory.objects.filter(prediction="Crying Detected").count(),
+        'total_uploads': PredictionHistory.objects.filter(user=request.user).count(),
+        'total_predictions': predictions_labels[0] if predictions_labels else 'No predictions yet',
         'uploads_labels': uploads_labels,
         'uploads_data': uploads_data,
         'predictions_labels': predictions_labels,
@@ -225,6 +227,10 @@ def logout_view(request):
 def history_view(request):
     predictions = PredictionHistory.objects.filter(user=request.user).order_by('-timestamp')
     return render(request, 'cry_classification/history.html', {'predictions': predictions})
+
+@login_required
+def contact_view(request):
+    return render(request, 'cry_classification/contact.html')
 
 # Help view
 @login_required

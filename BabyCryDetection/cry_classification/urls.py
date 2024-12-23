@@ -12,7 +12,11 @@ urlpatterns = [
     path('history/', views.history_view, name='history'),
     path('upload/', views.upload_audio_view, name='upload_audio'),
     path('logout/', views.logout_view, name='logout'),
+    path('contact/', views.contact_view, name='contact'),
     path('help/', views.help_view, name='help'),
-]
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+]+ static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# if settings.DEBUG:
+#     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+from django.contrib.staticfiles.urls import staticfiles_urlpatterns  
+urlpatterns += staticfiles_urlpatterns()

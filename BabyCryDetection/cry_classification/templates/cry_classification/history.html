@@ -222,8 +222,9 @@
                                     </div>
                                 </td>
                                 <td>
+                                    <a href="{{ STATIC_URL }}audio_files/{{ prediction.file_name }}" class="btn btn-download" download>
                                     <!-- <a href="{{ MEDIA_URL }}audio_files/{{ prediction.file_name }}" class="btn btn-download" download> -->
-                                    <a href="{{ MEDIA_URL }}audio_files/{{ prediction.file_name }}" class="btn btn-download" download> <i class="fas fa-download"></i> </a>
+                                    <!-- <a href="{{ prediction.file_path }}" class="btn btn-download" download> <i class="fas fa-download"></i> </a> -->
                                 </td>
                             </tr>
                         {% endfor %}
