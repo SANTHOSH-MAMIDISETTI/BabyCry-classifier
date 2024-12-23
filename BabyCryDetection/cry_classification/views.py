@@ -166,7 +166,9 @@ def upload_audio_view(request):
 
             # Extract features and predict
             features = extract_features(full_file_path)
-            prediction, confidence = predict_cry(full_file_path)
+            prediction, confidence = predict_cry(features)
+
+            # print("---------- Just after predict -------")
 
             prediction_result = f"Prediction: {prediction} (Confidence: {confidence*100:.2f}%)"
             messages.success(request, f"File uploaded successfully! {prediction_result}")
@@ -180,6 +182,8 @@ def upload_audio_view(request):
                 confidence=confidence * 100
             )
 
+            # print("Just After something................")
+
         except Exception as e:
             messages.error(request, f"Error processing file: {e}")
             return redirect('upload_audio')
@@ -191,11 +195,18 @@ def upload_audio_view(request):
 # Feature extraction function
 def extract_features(file_path):
     try:
-        y, sr = sf.read(file_path)
-        if y.ndim > 1:  # Convert stereo to mono
-            y = np.mean(y, axis=1)
-        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=13)
-        return np.mean(mfcc.T, axis=0)
+        # Load audio file
+        audio, sample_rate = librosa.load(file_path, res_type="kaiser_fast")
+        # Extract 40 MFCC features
+        mfccs_features = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
+        mfccs_scaled_features = np.mean(mfccs_features.T, axis=0)
+        
+        # Validate features length
+        if len(mfccs_scaled_features) != 40:
+            raise ValueError(f"Extracted features have {len(mfccs_scaled_features)} dimensions, but 40 were expected.")
+        
+        # Return as a 2D array for the classifier
+        return mfccs_scaled_features.reshape(1, -1)
     except Exception as e:
         raise ValueError(f"Error extracting features: {e}")
 
